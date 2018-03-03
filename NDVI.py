@@ -13,11 +13,19 @@
 #
 # Created by Alexandros Falagas
 #
-from osgeo import gdal
-# this allows GDAL to throw Python Exceptions
-gdal.UseExceptions()
-from gdalconst import *
+try:
+	from osgeo import gdal
+	# this allows GDAL to throw Python Exceptions
+	gdal.UseExceptions()
+	from gdalconst import *
+else:
+	import gdal
+	# this allows GDAL to throw Python Exceptions
+	gdal.UseExceptions()
+	from gdalconst import *
 import numpy as np
+#import os
+#cwd=os.getcwd()
 red=gdal.Open("red.tif", GA_ReadOnly)
 if red is None:
 	print 'Could not open file'
