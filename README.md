@@ -1,2 +1,16 @@
-# NDVI
-A NDVI Python Script that works with a *.tif NIR band and a *.tif RED band and gives as output a new NDVI image in *.tif format. To run this script, it’s important the name of the RED band to be “red.tif“, the name of the NIR band “nir.tif“ and all of them to be in the same folder (Python Script, nir.tif and red.tif).
+# NDVI Python Script
+
+A simple python script for calculating NDVI values from Earth Observation data. Works with rasterio and numpy libraries.
+
+## Terminal arguments:
+
+-p or --path: Path to data.
+-r or --red_band: Name of the red band image.
+-n or --nir_band: Name of the NIR band image.
+-o or --output: Name of the output image.
+
+## Examples:
+
+### 1: $python3 NDVI.py -r L2A_T34SEJ_20170228T092021_B04_10m.jp2 -n L2A_T34SEJ_20170228T092021_B08_10m.jp2 -p . -o L2A_T34SEJ_20170228T092021_ndvi.tif
+
+### 2: $python3 NDVI.py -r L2A_T34SEJ_20170228T092021_B04_10m.jp2 -n L2A_T34SEJ_20170228T092021_B08_10m.jp2 -p .

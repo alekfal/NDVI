@@ -12,39 +12,68 @@
 # GNU General Public License for more details.
 #
 # Created by Alexandros Falagas
-#
-try:
-	from osgeo import gdal
-	# this allows GDAL to throw Python Exceptions
-	gdal.UseExceptions()
-	from gdalconst import *
-else:
-	import gdal
-	# this allows GDAL to throw Python Exceptions
-	gdal.UseExceptions()
-	from gdalconst import *
+# Last update 28-09-2019
+
+import sys
+import os
+import optparse
 import numpy as np
-#import os
-#cwd=os.getcwd()
-red=gdal.Open("red.tif", GA_ReadOnly)
-if red is None:
-	print 'Could not open file'
-	sys.exit(1)
-r=np.array(red.GetRasterBand(1).ReadAsArray(), dtype=float)
-nir=gdal.Open("nir.tif", GA_ReadOnly)
-if nir is None:
-	print 'Could not open file'
-	sys.exit(1)
-n=np.array(nir.GetRasterBand(1).ReadAsArray(), dtype=float)
-geotr=red.GetGeoTransform()  
-proj=red.GetProjection()   
-tableshape=r.shape
-np.seterr(divide='ignore', invalid='ignore') #Ignore the divided by zero or Nan appears
-ndvi=(n-r)/(n+r) # The NDVI formula
-driver = gdal.GetDriverByName("GTiff")
-dst_ds = driver.Create("ndvi.tif", tableshape[1], tableshape[0], 1, gdal.GDT_Float32)
-dst_ds.SetGeoTransform(geotr)
-dst_ds.SetProjection(proj)
-dst_ds.GetRasterBand(1).WriteArray(ndvi)
-dst_ds = None  # save, close
-print "The NDVI image is saved."
+
+from earthobspy import readraster, writeraster
+
+class OptionParser (optparse.OptionParser):
+	"A class to parse the arguments."
+	
+	def check_required (self, opt):
+		"A simple method to check the required parameters."
+		
+		option = self.get_option(opt)
+		# Assumes the option's 'default' is set to None!
+		if getattr(self.values, option.dest) is None:
+			self.error("{} option is required.".format(option))
+
+def NDVI(r, n):
+	"The NDVI function."
+
+	np.seterr(divide='ignore', invalid='ignore') #Ignore the divided by zero or Nan appears
+	ndvi = (n-r)/(n+r) # The NDVI formula
+	ndvi = np.float32(ndvi) # Convert datatype to float32 for memory saving.
+	return ndvi
+
+if __name__ == "__main__":
+	# Parse command line arguments.
+	if len(sys.argv) == 1:
+		prog = os.path.basename(sys.argv[0])
+		print ('      '+sys.argv[0]+' [options]')
+		print ("For more information try: python3 ", prog, " --help")
+		print ("or: python3 ", prog, " -h")
+		print ("example python3  {} --red_band red.tif --nir_band nir.tif --path .".format(sys.argv[0]))
+		print ("example python3  {} --red_band red.tif --nir_band nir.tif --path . --output ndvi.tif".format(sys.argv[0]))
+		sys.exit(-1)
+	else:
+		usage = "usage: %prog [options] "
+		parser = OptionParser(usage=usage)
+		parser.add_option("-r", "--red_band", dest = "red", action = "store", type = "string", help = "Name of the red band image.", default = None)
+		parser.add_option("-n", "--nir_band", dest = "nir", action = "store", type = "string", help = "Name of the nir band image.", default = None)
+		parser.add_option("-p", "--path", dest = "path", action = "store", type = "string", help = "Path to data.", default = None)
+		parser.add_option("-o", "--output", dest="output", action="store", type="string", help="Name of the output image.",default=None)
+
+		(options, args) = parser.parse_args()
+
+		# Checking required arguments for the script.
+		parser.check_required("-r")
+		parser.check_required("-n")
+		parser.check_required("-p")
+
+		if options.output == None:
+			name = "NDVI_IMAGE.tif"
+		else:
+			name = options.output
+		# Reading red band.
+		(image, red, crs, count, up_l_crn, pixel_size, width, height, dtps, dtp_code, driver, utm, transform) = readraster(options.path, options.red)
+		# Reading NIR band.
+		(image, nir, crs, count, up_l_crn, pixel_size, width, height, dtps, dtp_code, driver, utm, transform) = readraster(options.path, options.nir)
+		# Calling the NDVI function.
+		ndvi = NDVI(red, nir)
+		# Writing the NDVI raster with the same properties as the original data
+		writeraster(options.path, name, ndvi, width, height, crs, transform, ['float32'], ext = 'Gtiff')
