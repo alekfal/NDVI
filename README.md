@@ -11,6 +11,6 @@ A simple python script for calculating NDVI values from Earth Observation data. 
 
 ## Examples:
 
-#### 1: $python3 NDVI.py -r L2A_T34SEJ_20170228T092021_B04_10m.jp2 -n L2A_T34SEJ_20170228T092021_B08_10m.jp2 -p . -o L2A_T34SEJ_20170228T092021_ndvi.tif
+#### $python3 NDVI.py -r L2A_T34SEJ_20170228T092021_B04_10m.jp2 -n L2A_T34SEJ_20170228T092021_B08_10m.jp2 -p . -o L2A_T34SEJ_20170228T092021_ndvi.tif
 
-#### 2: $python3 NDVI.py -r L2A_T34SEJ_20170228T092021_B04_10m.jp2 -n L2A_T34SEJ_20170228T092021_B08_10m.jp2 -p .
+#### $python3 NDVI.py -r L2A_T34SEJ_20170228T092021_B04_10m.jp2 -n L2A_T34SEJ_20170228T092021_B08_10m.jp2 -p .
