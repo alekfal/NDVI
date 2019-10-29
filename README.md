@@ -4,9 +4,9 @@ A simple python script for calculating NDVI values from Earth Observation data. 
 
 ## Terminal arguments:
 
--p or --path: Path to data.
--r or --red_band: Name of the red band image.
--n or --nir_band: Name of the NIR band image.
+-p or --path: Path to data.\
+-r or --red_band: Name of the red band image.\
+-n or --nir_band: Name of the NIR band image.\
 -o or --output: Name of the output image.
 
 ## Examples:
