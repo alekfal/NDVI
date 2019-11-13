@@ -22,10 +22,14 @@ import numpy as np
 from earthobspy import readraster, writeraster
 
 class OptionParser (optparse.OptionParser):
-	"A class to parse the arguments."
+	"""
+	A class to parse the arguments.
+	"""
 	
 	def check_required (self, opt):
-		"A simple method to check the required parameters."
+		"""
+		A method to check the required parameters.
+		"""
 		
 		option = self.get_option(opt)
 		# Assumes the option's 'default' is set to None!
@@ -33,14 +37,23 @@ class OptionParser (optparse.OptionParser):
 			self.error("{} option is required.".format(option))
 
 def NDVI(r, n):
-	"The NDVI function."
+	"""
+	NDVI function.
+	Inputs:
+		* r - red array (np.array)
+		* n - nir array (np.array)
+	Output:
+		* ndvi - ndvi array (np.array)
+	"""
 
-	np.seterr(divide='ignore', invalid='ignore') #Ignore the divided by zero or Nan appears
+	np.seterr(divide='ignore', invalid='ignore') # Ignore the divided by zero or Nan appears
 	ndvi = (n-r)/(n+r) # The NDVI formula
 	ndvi = np.float32(ndvi) # Convert datatype to float32 for memory saving.
-	return ndvi
+
+	return (ndvi)
 
 if __name__ == "__main__":
+
 	# Parse command line arguments.
 	if len(sys.argv) == 1:
 		prog = os.path.basename(sys.argv[0])
@@ -76,4 +89,4 @@ if __name__ == "__main__":
 		# Calling the NDVI function.
 		ndvi = NDVI(red, nir)
 		# Writing the NDVI raster with the same properties as the original data
-		writeraster(options.path, name, ndvi, width, height, crs, transform, ['float32'], ext = 'Gtiff')
+		writeraster(options.path, name, ndvi, width, height, crs, transform, dtps, ext = 'Gtiff')
