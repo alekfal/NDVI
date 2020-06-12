@@ -1,6 +1,6 @@
 # NDVI Python Script
 
-A simple python script for calculating NDVI values from Earth Observation data. Works with rasterio and numpy libraries. Also for reading, writing rasters the EarthObsevation repository is used (https://github.com/alekfal/EarthObservationLibrary).
+A simple python script for calculating NDVI values from Earth Observation data. Works with rasterio and numpy libraries. Also for reading, writing rasters the EarthObsevationLibrary (v.0.0.5) repository is used (https://github.com/alekfal/EarthObservationLibrary).
 
 ## Terminal arguments:
 

@@ -19,8 +19,7 @@ import os
 import optparse
 import numpy as np
 
-from earthobspy import readraster, writeraster
-
+from earthobspy import earthobspy
 class OptionParser (optparse.OptionParser):
 	"""
 	A class to parse the arguments.
@@ -83,10 +82,10 @@ if __name__ == "__main__":
 		else:
 			name = options.output
 		# Reading red band.
-		(image, red, crs, count, up_l_crn, pixel_size, width, height, dtps, dtp_code, driver, utm, transform) = readraster(options.path, options.red)
+		(image, red, crs, count, up_l_crn, pixel_size, width, height, dtps, dtp_code, driver, utm, transform, nodata) = earthobspy.readraster(options.path, options.red)
 		# Reading NIR band.
-		(image, nir, crs, count, up_l_crn, pixel_size, width, height, dtps, dtp_code, driver, utm, transform) = readraster(options.path, options.nir)
+		(image, nir, crs, count, up_l_crn, pixel_size, width, height, dtps, dtp_code, driver, utm, transform, nodata) = earthobspy.readraster(options.path, options.nir)
 		# Calling the NDVI function.
 		ndvi = NDVI(red, nir)
 		# Writing the NDVI raster with the same properties as the original data
-		writeraster(options.path, name, ndvi, width, height, crs, transform, dtps, ext = 'Gtiff')
+		earthobspy.writeraster(options.path, name, ndvi, width, height, crs, transform, dtype = dtps, nodata = nodata, ext = 'Gtiff')
