@@ -12,47 +12,44 @@
 # GNU General Public License for more details.
 #
 # Created by Alexandros Falagas
-# Last update 28-09-2019
+# Last update 13-09-2022
 
 import sys
 import os
 import optparse
 import numpy as np
+import rasterio
 
-from earthobspy import earthobspy
 class OptionParser (optparse.OptionParser):
-	"""
-	A class to parse the arguments.
-	"""
+	"A class to parse the arguments."
 	
 	def check_required (self, opt):
-		"""
-		A method to check the required parameters.
-		"""
+		"A simple method to check the required parameters."
 		
 		option = self.get_option(opt)
 		# Assumes the option's 'default' is set to None!
 		if getattr(self.values, option.dest) is None:
 			self.error("{} option is required.".format(option))
 
-def NDVI(r, n):
-	"""
-	NDVI function.
-	Inputs:
-		* r - red array (np.array)
-		* n - nir array (np.array)
-	Output:
-		* ndvi - ndvi array (np.array)
-	"""
+def NDVI(r:np.array, n:np.array)->np.array:
+	"""The NDVI function.
 
+	Args:
+		r (np.array): Red band array
+		n (np.array): NIR band array
+
+	Returns:
+		np.array: NDVI array
+	"""
 	np.seterr(divide='ignore', invalid='ignore') # Ignore the divided by zero or Nan appears
-	ndvi = (n-r)/(n+r) # The NDVI formula
-	ndvi = np.float32(ndvi) # Convert datatype to float32 for memory saving.
+	# BE CAREFULL! Without this convertion, doesn't work correctly !
+	n = n.astype(rasterio.float32)
+	r = r.astype(rasterio.float32)
+	ndvi = (n - r) / (n + r) # The NDVI formula
 
-	return (ndvi)
+	return ndvi
 
 if __name__ == "__main__":
-
 	# Parse command line arguments.
 	if len(sys.argv) == 1:
 		prog = os.path.basename(sys.argv[0])
@@ -68,7 +65,7 @@ if __name__ == "__main__":
 		parser.add_option("-r", "--red_band", dest = "red", action = "store", type = "string", help = "Name of the red band image.", default = None)
 		parser.add_option("-n", "--nir_band", dest = "nir", action = "store", type = "string", help = "Name of the nir band image.", default = None)
 		parser.add_option("-p", "--path", dest = "path", action = "store", type = "string", help = "Path to data.", default = None)
-		parser.add_option("-o", "--output", dest="output", action="store", type="string", help="Name of the output image.",default=None)
+		parser.add_option("-o", "--output", dest="output", action = "store", type="string", help="Name of the output image.", default=None)
 
 		(options, args) = parser.parse_args()
 
@@ -78,14 +75,31 @@ if __name__ == "__main__":
 		parser.check_required("-p")
 
 		if options.output == None:
-			name = "NDVI_IMAGE.tif"
+			name = "NDVI.tif"
 		else:
 			name = options.output
+		
+
+
 		# Reading red band.
-		(image, red, crs, count, up_l_crn, pixel_size, width, height, dtps, dtp_code, driver, utm, transform, nodata) = earthobspy.readraster(options.path, options.red)
-		# Reading NIR band.
-		(image, nir, crs, count, up_l_crn, pixel_size, width, height, dtps, dtp_code, driver, utm, transform, nodata) = earthobspy.readraster(options.path, options.nir)
+		red = rasterio.open(os.path.join(options.path, options.red), "r")
+		red_array = red.read()
+		metadata = red.meta.copy()
+		
+		# Reading NIR band
+		nir = rasterio.open(os.path.join(options.path, options.nir), "r")
+		nir_array = nir.read()
+
 		# Calling the NDVI function.
-		ndvi = NDVI(red, nir)
+		ndvi_array = NDVI(red_array, nir_array)
+		
+		# Updating metadata
+		metadata.update({"driver":"GTiff", "dtype": rasterio.float32})		
+
 		# Writing the NDVI raster with the same properties as the original data
-		earthobspy.writeraster(options.path, name, ndvi, width, height, crs, transform, dtype = dtps, nodata = nodata, ext = 'Gtiff')
+		with rasterio.open(os.path.join(options.path, name), "w", **metadata) as dst:
+			if ndvi_array.ndim == 2:
+				dst.write(ndvi_array, 1)
+			else:
+				dst.write(ndvi_array)
+			

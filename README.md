@@ -1,19 +1,31 @@
 # NDVI Python Script
 
-A simple python script for calculating NDVI values from Earth Observation data. Works with rasterio and numpy libraries. Also for reading, writing rasters the EarthObsevationLibrary (v.0.0.5) repository is used (https://github.com/alekfal/EarthObservationLibrary).
+A simple python script for calculating NDVI values from earth observation multispectral data. Rasterio and numpy libraries are required.
 
-## Terminal arguments:
+## Installation
 
+Clone the repository and install the required libraries using ```pip```:
+
+```bash
+git clone https://github.com/alekfal/NDVI.git
+cd NDVI/
+pip install -r requirements.txt
 ```
--p or --path: Path to data.
--r or --red_band: Name of the red band image.
--n or --nir_band: Name of the NIR band image.
--o or --output: Name of the output image.
-```
 
-## Examples:
+## Terminal arguments
 
-```
-$python3 NDVI.py -r red_image.tif -n nir_image.tif -p . -o my_new_ndvi_image.tif
-$python3 NDVI.py -r red_image.tif -n nir_image.tif -p .
+
+| Short options | Long options     | Description                   | Required |
+|---------------|------------------|-------------------------------|----------|
+|```-p```       | ```--path```     | Path to data                  | Yes      |
+|```-r```       | ```--red_band``` | Name of the red band image    | Yes      |
+| ```-n```      | ```--nir_band``` | Name of the NIR band image    | Yes      |
+| ```-o```      | ```--output```   | Name of the output image      | No       |
+
+
+## Examples
+
+```bash
+python NDVI.py -p . -r red_image.tif -n nir_image.tif -o my_new_ndvi_image.tif
+python NDVI.py -p . -r red_image.tif -n nir_image.tif
 ```
